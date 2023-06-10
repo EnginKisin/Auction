@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kayıt Sayfası</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+    <div class="login-form">
+        <h2 class="text-center" style="color:#F0E68C;">MÜZAYEDE</h2>
+        <div class="text">
+            Kayıt Formu
+        </div>
+        <form th:action="@{/perform_register}" th:object="${user}" method="post" style="max-width: 600px; margin: 0 auto;">
+            <div class="field">
+                <div class="fas fa-envelope"></div>
+                <input type="email" th:field="*{email}" class="form-control m-1" placeholder="E-posta" required />
+            </div>
+            <div class="field">
+                <div class="fas fa-lock"></div>
+                <input type="password" th:field="*{password}" class="form-control m-1" placeholder="Şifre" required minlength="8"/>
+            </div>
+            <button>Kayıt Ol</button>
+        </form>
+        <br/>
+        <h4>Zaten hesabın var mı ? <a th:href="@{/login}">Giriş Yap</a></h4>
+    </div>
+</body>
+</html>

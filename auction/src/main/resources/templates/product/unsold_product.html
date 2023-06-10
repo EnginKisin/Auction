@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Müzayede Ürünleri</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+
+                $(document).ready(function () {
+                    window.setTimeout(function() {
+                        $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
+                            $(this).remove();
+                        });
+                    }, 1000);
+                });
+
+                var auctions =  [[${auctions}]];
+                var x = setInterval(function() {
+                    $.ajax({
+                        url: "/get-giveOffer",
+                        type: "GET",
+                        cache: false,
+                        success: function(auction_offers) {
+                            $.each(auction_offers, function(index, auction_offer) {
+                                $("#auction_offer"+auction_offer.product_id).html(auction_offer.price_offer);
+                            });
+                        }
+                    });
+                    for (var i = 0; i < auctions.length; i++) {
+                          var end_date = auctions[i].end_date;
+                          var countDownDate = new Date(end_date).getTime();
+
+                          var product_id = auctions[i].product_id;
+
+                          var now = new Date().getTime();
+                          var distance = countDownDate - now;
+                          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                          document.getElementById("auction"+product_id).innerHTML = days + "d " + hours + "h "
+                          + minutes + "m ";
+
+
+                          if (distance < 0) {
+                              clearInterval(x);
+                              document.getElementById("auction"+product_id).innerHTML = "Süre Doldu!";
+                          }
+
+                    }
+                }, 3000);
+
+        /*]]>*/
+    </script>
+
+</head>
+<body>
+<div th:replace="layout/menu :: header"></div>
+<br/><br/><br/><br/>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col" th:each="product : ${products}">
+        <div class="card border-dark h-50 w-30">
+            <img class="card-img-top" alt="" th:src="*{'data:image/jpeg;base64,'+{product.image}}" style="width:100%; height:100%;">
+            <br/>
+            <div class="card-body">
+                <div th:each="auction : ${auctions}">
+                    <div th:if="${auction.product_id == product.id}" >
+                        <p th:id="auction+${auction.product_id}"></p>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <p>Son verilen teklif: <b th:id="auction_offer+${product.id }"></b></p>
+                    </div>
+                </div>
+                <h5 class="card-title">[[*{product.name}]]</h5>
+                <h6 class="card-title">[[*{product.price}]]</h6>
+            </div>
+            <div class="card-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" th:attr="data-bs-target='#detailProduct'+${product.id}">
+                    Ürün Bilgileri
+                </button>
+                <div class="modal fade" th:id="detailProduct+${product.id }" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="detailProductLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="detailProductLabel">Ürün Bilgileri</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <img alt="" th:src="*{'data:image/jpeg;base64,'+{product.image}}" style="width:300px; height:150px;">
+                                </div>
+                                <br/>
+                                <div class="accordion" id="accordionPanelsStayOpenExample">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                                <strong>Ürün</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <p><strong>Ürün İsmi:</strong> [[*{product.name}]]</p>
+                                                <p><strong>Ürün Fiyatı:</strong> [[*{product.price}]]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                                                <strong>Ürün Açıklaması</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                [[*{product.description}]]
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div th:if="${warningGiveOffer}" class="alert alert-warning">
+                    <p th:text="${warningGiveOffer}"></p>
+                </div>
+                <div th:if="${successGiveOffer}" class="alert alert-success">
+                    <p th:text="${successGiveOffer}"></p>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" th:attr="data-bs-target='#giveOfferProduct'+${product.id}">
+                    Teklif Ver
+                </button>
+                <div class="modal fade" th:id="giveOfferProduct+${product.id }" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="giveOfferProductLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="giveOfferProductLabel">Ürün Teklifi</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <img alt="" th:src="*{'data:image/jpeg;base64,'+{product.image}}" style="width:300px; height:150px;">
+                                </div>
+                                <br/>
+                                <div class="accordion" id="giveOfferAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#giveOfferAccordion-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                                <strong>Ürün</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="giveOfferAccordion-collapseOne" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <p><strong>Ürün İsmi:</strong> [[*{product.name}]]</p>
+                                                <p><strong>Ürün Fiyatı:</strong> [[*{product.price}]]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#giveOfferAccordion-collapseTwo" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                                <strong>Teklif Ver</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="giveOfferAccordion-collapseTwo" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <form action="/give-offer" method="post">
+                                                    <div class="form-group">
+                                                        <div th:each="auction : ${auctions}">
+                                                            <div th:if="${auction.product_id == product.id}" >
+                                                                <input type="hidden" name="auction_id" class="form-control" th:value="*{auction.id}" >
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="product_id" class="form-control" th:value="*{product.id}" >
+                                                        <label>Teklif Fiyatı</label>
+                                                        <input type="text" name="price_offer" class="form-control" required>
+                                                        <br/>
+                                                        <button type="submit" class="btn btn-primary">Teklif Ver</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
