@@ -65,7 +65,6 @@ public class AuctionService {
 
     //FixedRate özelliği , zamanlanan görevi her  n milisaniyede bir çalıştırır.
 
-    //dakika da beş kez çalışacak şekilde
     @Scheduled(fixedRate = 1)
     public void execute() throws StripeException {
         List<Auction> auctions = auctionRepository.findAll();
@@ -81,7 +80,7 @@ public class AuctionService {
                 AuctionOffer auctionOffer = auctionOfferRepository.getBiggestGiveOffer(auction.getProduct_id());
                 Card card = cardRepository.getCardByOwner(auctionOffer.getOffer_owner());
 
-                Stripe.apiKey = "sk_test_51NCV4pEu0lkggKNUYBsvLHSO6e86ZjXdOWrOo9gpR88QRhcMj2Fv9r1If88RtBnldDt78wHTXRtoZrnBUvHAh4Qk00PG8HYnZR";
+                Stripe.apiKey = "api_key?";
                 Token token = Token.create(Map.of(
                         "card", Map.of(
                                 "number", card.getNumber(),
